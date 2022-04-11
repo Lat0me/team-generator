@@ -1,5 +1,5 @@
 const { Client, Intents, MessageEmbed } = require("discord.js");
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES] });
 
 const config = require("./config.json");
 const prefix = "!";
@@ -13,22 +13,17 @@ client.on("messageCreate", function(message) {
     const command = args.shift().toLowerCase();
 
     if (command === "team") {
-        if (1 >= args[0]) {
-            message.reply("You need to specify a number of team superior !");
-            return;
-        }
+        if (null === message.member.voice.channel) return message.reply("You need to be in a voice channel !");
+        if (isNaN(args[0])) return message.reply("Please enter a valid team number.");
+        if (1 >= args[0]) return message.reply("You must specify a team number greater than one !");
 
-        let numberTeam = args[0];
-        // Current channel
-        //console.log(message.member.voice.channel.id)
-
-        // take all user connected in same channel
         let teams = [];
+        let numberTeam = args[0];
         let playerNumber = message.member.voice.channel.members.size
 
         if (numberTeam > playerNumber) {
             message.reply("You need more player to create a team !");
-             return;
+            return;
         }
 
         message.member.voice.channel.members.each(member=>{
